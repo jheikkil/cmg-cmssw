@@ -44,7 +44,9 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
     By default, the matching is true only if delta R is smaller than 0.3. 
     '''
     #
-                                                                                                                                                                                                                                       
+    #print "MATCH222222222222222222222222"                                                                                                                                                                                                                                       
+    #print deltaRMax
+
     pairs = {}
     if len(objects)==0:
             return pairs
@@ -68,6 +70,8 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
     #
 
     deltaR2Max = deltaRMax * deltaRMax
+    #print "deltaRMax"
+    #print deltaRMax
     for dR2, (object, match) in allPairs:
         if dR2 > deltaR2Max:
             break
@@ -141,8 +145,13 @@ def bestMatch( object, matchCollection):
     deltaR2Min = float('+inf')
     bm = None
     for match in matchCollection:
+        #print "match"
+        #print match.pt()
+        #print match.pdgId()
         dR2 = deltaR2( object.eta(), object.phi(),
                        match.eta(), match.phi() )
+        #print "dR2"
+        #print dR2
         if dR2 < deltaR2Min:
             deltaR2Min = dR2
             bm = match
@@ -151,6 +160,9 @@ def bestMatch( object, matchCollection):
 
 def matchObjectCollection( objects, matchCollection, deltaR2Max, filter = lambda x,y : True):
     pairs = {}
+    #print "MOI"
+    #print "deltaR2Max"
+    #print deltaR2Max
     if len(objects)==0:
         return pairs
     if len(matchCollection)==0:
@@ -158,8 +170,18 @@ def matchObjectCollection( objects, matchCollection, deltaR2Max, filter = lambda
     for object in objects:
         bm, dr2 = bestMatch( object, [mob for mob in matchCollection if filter(object,mob)] )
         if dr2<deltaR2Max:
+            #print "OK"
+            #print "deltaR2Max"
+            #print deltaR2Max
+            #print "dr2"
+            #print dr2
             pairs[object] = bm
         else:
+            #print "EI OKE"
+            #print "deltaR2Max"
+            #print deltaR2Max
+            #print "dr2"
+            #print dr2
             pairs[object] = None            
     return pairs
 
