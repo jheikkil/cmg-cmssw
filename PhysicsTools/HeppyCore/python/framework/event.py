@@ -31,6 +31,8 @@ class Event(object):
             tmp = value
             # check for recursivity
             recursive = False
+            #print "var is:"
+            #print var
             if hasattr(value, '__getitem__') and \
                not isinstance(value, collections.Mapping) and \
                (len(value)>0 and value[0].__class__ == value.__class__):
