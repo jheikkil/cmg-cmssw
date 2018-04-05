@@ -49,6 +49,7 @@ namespace reco
     MET( double sumet_, const std::vector<CorrMETData>& corr_,
 	 const LorentzVector& p4_, const Point& vtx_ );
 
+    MET( const MET& met );
     MET * clone() const;
 
     //________________________________________________________________________||

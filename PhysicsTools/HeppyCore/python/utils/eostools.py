@@ -48,7 +48,7 @@ def runEOSCommand(path, cmd, *args):
     tokens = splitPFN(path)
     
     #obviously, this is not nice
-    command = ['eos', cmd]
+    command = ['/afs/cern.ch/project/eos/installation/pro/bin/eos.select', cmd]
     command.extend(args)
     command.append(tokens[2])
     return _runCommand(command)
@@ -193,7 +193,7 @@ def createEOSDir( path ):
     pfn = lfnToPFN(path)
     if not isEOSFile(pfn):
     # if not isDirectory(lfn):
-        runEOSCommand(pfn,'mkdir','-p')
+        runEOSCommand(lfn,'mkdir','-p')
     if isDirectory(path):
         return path
     else:
