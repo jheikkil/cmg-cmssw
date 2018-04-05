@@ -190,8 +190,8 @@ def createEOSDir( path ):
     ???Will, I'm quite worried by the fact that if this path already exists, and is
     a file, everything will 'work'. But then we have a file, and not a directory,
     while we expect a dir..."""
-    lfn = eosToLFN(path)
-    if not isEOSFile(lfn):
+    pfn = lfnToPFN(path)
+    if not isEOSFile(pfn):
     # if not isDirectory(lfn):
         runEOSCommand(lfn,'mkdir','-p')
     if isDirectory(path):
