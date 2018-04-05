@@ -23,6 +23,9 @@ class TriggerMatchAnalyzer( Analyzer ):
         self.pt1 = getattr(self.cfg_ana,"pt1", 20)
         self.pt2 = getattr(self.cfg_ana,"pt2", 11)
         self.applyCuts = getattr(self.cfg_ana,"applyCuts",False)
+        self.dataName = getattr(self.cfg_comp, "name", None)
+        self.nameAna = getattr(self.cfg_ana, "name", None)
+        self.data = getattr(self.cfg_ana, "data", False)
         if self.collToMatch and not hasattr(self.cfg_ana,"univoqueMatching"): raise RuntimeError("Please specify if the matching to trigger objects should be 1-to-1 or 1-to-many")
         self.match1To1 = getattr(self.cfg_ana,"univoqueMatching",True)
 
@@ -41,29 +44,34 @@ class TriggerMatchAnalyzer( Analyzer ):
         allTriggerObjects = self.handles['TriggerObjects'].product()
         names = event.input.object().triggerNames(triggerBits)
         for ob in allTriggerObjects: ob.unpackPathNames(names)
-        #print "all:"
-        #for ob in allTriggerObjects: 
-        #    print ob.collection()
-        #    print ob.pt()
-        #    print ob.eta()
-        #    print ob.phi()
+
+        ##print "-----------NOW ANALYZING: %s---------" %self.nameAna
+
+        ##print "------------------ALL TRIGGER OBJECTS----------------------"
+        ##for ob in allTriggerObjects: 
+        ##    print "collection, pt, eta, phi: %s %s %s %s" %(ob.collection(), ob.pt(), ob.eta(), ob.phi())
+ 
         triggerObjects = [ob for ob in allTriggerObjects if False not in [sel(ob) for sel in self.trgObjSelectors]]
 
-       # print "final"
-       # for obj in triggerObjects:
-       #     print obj.collection()
-       #     print obj.pt()
-       #     print obj.eta()
-       #     print obj.phi()
-       #     print "filterlabels"
-       #     print [ l for l in obj.filterLabels() ]
-       #     print "paths"
-       #     print [ l for l in obj.pathNames() ] 
-       #     print "fired"
-       #     print [ l for l in obj.pathNames(True) ]
+        ##print "-----------------FINAL OBJECTS-----------------------------"
+        ##for obj in triggerObjects:
+         ##   print "collection, pt, eta, phi: %s %s %s %s" %(obj.collection(), obj.pt(), obj.eta(), obj.phi())
+         ##   print "paths"
+          ##  print [ l for l in obj.pathNames() ] 
+         ##   print "fired"
+         ##   print [ l for l in obj.pathNames(True) ]
 
+        ###print "--------------------"
 
         setattr(event,'trgObjects_'+self.label,triggerObjects)
+
+        #if self.data:
+        #    print "HEIPPA NYT OIS DATA"
+        #    if "Single" in self.dataName:
+        #        print "HEI OLIPA SINGLE MYOS"
+
+        #print "Meidan komponentti onkin:"
+        #print self.dataName
 
         if self.applyCuts:
             leptons = getattr(event,self.collToMatch)
@@ -98,25 +106,57 @@ class TriggerMatchAnalyzer( Analyzer ):
               #  if tcoll[0].pt()>self.pt1 and tcoll[1].pt()>self.pt2:
             doubleandselector = lambda lep,ob: False if False in [sel(lep,ob) for sel in self.collMatchSelectors] else True
             pairs = matchObjectCollection3(tcoll,triggerObjects,deltaRMax=self.collMatchDRCut,filter=doubleandselector) if self.match1To1 else matchObjectCollection(tcoll,triggerObjects,self.collMatchDRCut,filter=doubleandselector)
-            for ob in getattr(event,'trgObjects_'+self.label):
-                types = ", ".join([str(f) for f in ob.filterIds()])
-                filters = ", ".join([str(f) for f in ob.filterLabels()])
+            #for ob in getattr(event,'trgObjects_'+self.label):
+                #types = ", ".join([str(f) for f in ob.filterIds()])
+                #filters = ", ".join([str(f) for f in ob.filterLabels()])
                 #filters = ", ".join([])
-                paths = ", ".join([("%s***" if f in set(ob.pathNames(True)) else "%s")%f for f in ob.pathNames()]) # asterisks indicate final paths fired by this object, see pat::TriggerObjectStandAlone class
+                #paths = ", ".join([("%s***" if f in set(ob.pathNames(True)) else "%s")%f for f in ob.pathNames()]) # asterisks indicate final paths fired by this object, see pat::TriggerObjectStandAlone class
                 #print 'Trigger object: pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, type_ids=%s, filters=%s, paths=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),types,filters,paths)
+
+            if self.label=="Els":
+                double1 = "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
+                double2 = None
+                single1 = "HLT_Ele27_WPTight_Gsf_v"
+                single2 = None
+            elif self.label=="Mus":
+                double1 = "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"
+                double2 = "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"
+                single1 = "HLT_IsoMu24_v"
+                single2 = "HLT_IsoTkMu24_v"
+
 
             for lep in tcoll: 
                 #print pairs[lep]
                 if pairs[lep] != None:
                     #print pairs[lep]
                     #print len(pairs[lep])
-                    #print "TAMA LEPTONI MATCH"
-                    #print lep
+                    ##print "TAMA LEPTONI MATCH"
+                    ###print lep
                     #print "JEE"
                     setattr(lep,'matchedTrgObj'+self.label,pairs[lep])
-                    #ob = getattr(lep,'matchedTrgObj'+self.label)
-                    #if ob: mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection())
-                    #print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring) 
+                    ob = getattr(lep,'matchedTrgObj'+self.label)
+                    if ob: 
+                        mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, path=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),ob.pathNames(True))
+                        for f in set(ob.pathNames(True)):
+                            ##print "TRUE PATH NAMES: %s" %f
+                            if (double1 and double1 in f) or (double2 and double2 in f):
+                                #print "TUPLAT"
+                                #print "TASSA PATH"
+                                #print f
+                                #print "TASSA double1"
+                                #print double1
+                                #print "TASSA double2"
+                                #print double2
+                                #if self.data and "Single" in self.dataName:
+                                #    print "NYT OLI DOUBLE FIRED"
+                                #    print "JA OLLAAN DATA SETISA SINGLE"
+                                #    return False 
+                                setattr(lep,'matchedTrgObj'+self.label+'_Double', pairs[lep])
+                            if (single1 and single1 in f) or (single2 and single2 in f):
+                                #print "SINKUT"
+                                #print f
+                                setattr(lep,'matchedTrgObj'+self.label+'_Single',pairs[lep])
+                   ### print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring) 
 
         if self.verbose:
             print 'Verbose debug for triggerMatchAnalyzer %s'%self.label

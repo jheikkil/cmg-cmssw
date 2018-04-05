@@ -99,6 +99,7 @@ class CmsswPreprocessor :
 		#fixme: implement skipEvent / firstevent
 
 		outfilename=wd+"/cmsswPreProcessing.root"
+                print outfilename
 		# for outName in cmsswConfig.process.endpath.moduleNames():
 		for module in cmsswConfig.process.endpaths.viewvalues():
 			for outName in module.moduleNames():
