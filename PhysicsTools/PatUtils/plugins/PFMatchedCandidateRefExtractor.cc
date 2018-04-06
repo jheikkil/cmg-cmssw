@@ -83,7 +83,7 @@ PFMatchedCandidateRefExtractor::produce(edm::Event& iEvent, const edm::EventSetu
       
       bool matched=(col1Handle->ptrAt(iC1)==col2Handle->ptrAt(iC2));
       if(!matched &&
-	 deltaR2(col1Handle->ptrAt(iC1)->p4(), col2Handle->ptrAt(iC2)->p4() )< 0.000001) {
+	 deltaR2(col1Handle->ptrAt(iC1)->p4(), col2Handle->ptrAt(iC2)->p4() )< 0.0001) {
 	matched=true;
       }
    
@@ -112,7 +112,7 @@ PFMatchedCandidateRefExtractor::produce(edm::Event& iEvent, const edm::EventSetu
 	  if(!match1) {//recovery when pfcandidate sources are not equivalent
 	    for(size_t ics1=0;ics1<sc1s.size();ics1++) {
 	      if(deltaR2(c->p4(), 
-		 col1Handle->ptrAt(iC1)->sourceCandidatePtr(ics1)->p4())<0.0000001) { //tight dR, pfcandidates should be the same
+		 col1Handle->ptrAt(iC1)->sourceCandidatePtr(ics1)->p4())<0.0001) { //tight dR, pfcandidates should be the same
 		match1=true;
 		break;
 	      }
@@ -121,7 +121,7 @@ PFMatchedCandidateRefExtractor::produce(edm::Event& iEvent, const edm::EventSetu
 	  if(!match2) {//recovery when pfcandidate sources are not equivalent
 	    for(size_t ics2=0;ics2<sc2s.size();ics2++) {
 	      if(deltaR2(c->p4(), 
-		 col2Handle->ptrAt(iC2)->sourceCandidatePtr(ics2)->p4())<0.00001) { //tight dR
+		 col2Handle->ptrAt(iC2)->sourceCandidatePtr(ics2)->p4())<0.0001) { //tight dR
 		match2=true;
 		break;
 	      }
