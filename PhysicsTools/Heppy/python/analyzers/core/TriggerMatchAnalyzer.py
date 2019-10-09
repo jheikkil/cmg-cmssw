@@ -45,33 +45,10 @@ class TriggerMatchAnalyzer( Analyzer ):
         names = event.input.object().triggerNames(triggerBits)
         for ob in allTriggerObjects: ob.unpackPathNames(names)
 
-        ##print "-----------NOW ANALYZING: %s---------" %self.nameAna
-
-        ##print "------------------ALL TRIGGER OBJECTS----------------------"
-        ##for ob in allTriggerObjects: 
-        ##    print "collection, pt, eta, phi: %s %s %s %s" %(ob.collection(), ob.pt(), ob.eta(), ob.phi())
- 
         triggerObjects = [ob for ob in allTriggerObjects if False not in [sel(ob) for sel in self.trgObjSelectors]]
-
-        ##print "-----------------FINAL OBJECTS-----------------------------"
-        ##for obj in triggerObjects:
-         ##   print "collection, pt, eta, phi: %s %s %s %s" %(obj.collection(), obj.pt(), obj.eta(), obj.phi())
-         ##   print "paths"
-          ##  print [ l for l in obj.pathNames() ] 
-         ##   print "fired"
-         ##   print [ l for l in obj.pathNames(True) ]
-
-        ###print "--------------------"
 
         setattr(event,'trgObjects_'+self.label,triggerObjects)
 
-        #if self.data:
-        #    print "HEIPPA NYT OIS DATA"
-        #    if "Single" in self.dataName:
-        #        print "HEI OLIPA SINGLE MYOS"
-
-        #print "Meidan komponentti onkin:"
-        #print self.dataName
 
         if self.applyCuts:
             leptons = getattr(event,self.collToMatch)
@@ -94,24 +71,9 @@ class TriggerMatchAnalyzer( Analyzer ):
                 return False             
 
         if self.collToMatch:
-            #print "OK, LETS DO IT"
-            #print "DR CUT AT TRIGGERMATCH"
-            #print self.collMatchDRCut
-            #print "ONE TO ONE?"
-            #print self.match1To1
             tcoll = getattr(event,self.collToMatch)
-           # tcoll = [lep for lep in tcoll if abs(lep.pdgId()) == self.id]
-           # tcoll.sort(key=lambda x: x.pt(), reverse=True)         
-            #if len(tcoll)>1:
-              #  if tcoll[0].pt()>self.pt1 and tcoll[1].pt()>self.pt2:
             doubleandselector = lambda lep,ob: False if False in [sel(lep,ob) for sel in self.collMatchSelectors] else True
             pairs = matchObjectCollection3(tcoll,triggerObjects,deltaRMax=self.collMatchDRCut,filter=doubleandselector) if self.match1To1 else matchObjectCollection(tcoll,triggerObjects,self.collMatchDRCut,filter=doubleandselector)
-            #for ob in getattr(event,'trgObjects_'+self.label):
-                #types = ", ".join([str(f) for f in ob.filterIds()])
-                #filters = ", ".join([str(f) for f in ob.filterLabels()])
-                #filters = ", ".join([])
-                #paths = ", ".join([("%s***" if f in set(ob.pathNames(True)) else "%s")%f for f in ob.pathNames()]) # asterisks indicate final paths fired by this object, see pat::TriggerObjectStandAlone class
-                #print 'Trigger object: pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, type_ids=%s, filters=%s, paths=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),types,filters,paths)
 
             if self.label=="Els":
                 double1 = "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v"
@@ -128,35 +90,15 @@ class TriggerMatchAnalyzer( Analyzer ):
             for lep in tcoll: 
                 #print pairs[lep]
                 if pairs[lep] != None:
-                    #print pairs[lep]
-                    #print len(pairs[lep])
-                    ##print "TAMA LEPTONI MATCH"
-                    ###print lep
-                    #print "JEE"
                     setattr(lep,'matchedTrgObj'+self.label,pairs[lep])
                     ob = getattr(lep,'matchedTrgObj'+self.label)
                     if ob: 
                         mstring = 'trigger obj with pt=%.2f, eta=%.2f, phi=%.2f, collection=%s, path=%s'%(ob.pt(),ob.eta(),ob.phi(),ob.collection(),ob.pathNames(True))
                         for f in set(ob.pathNames(True)):
-                            ##print "TRUE PATH NAMES: %s" %f
                             if (double1 and double1 in f) or (double2 and double2 in f):
-                                #print "TUPLAT"
-                                #print "TASSA PATH"
-                                #print f
-                                #print "TASSA double1"
-                                #print double1
-                                #print "TASSA double2"
-                                #print double2
-                                #if self.data and "Single" in self.dataName:
-                                #    print "NYT OLI DOUBLE FIRED"
-                                #    print "JA OLLAAN DATA SETISA SINGLE"
-                                #    return False 
                                 setattr(lep,'matchedTrgObj'+self.label+'_Double', pairs[lep])
                             if (single1 and single1 in f) or (single2 and single2 in f):
-                                #print "SINKUT"
-                                #print f
                                 setattr(lep,'matchedTrgObj'+self.label+'_Single',pairs[lep])
-                   ### print 'Lepton pt=%.2f, eta=%.2f, phi=%.2f matched to %s'%(lep.pt(),lep.eta(),lep.phi(),mstring) 
 
         if self.verbose:
             print 'Verbose debug for triggerMatchAnalyzer %s'%self.label
